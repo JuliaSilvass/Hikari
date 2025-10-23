@@ -1,7 +1,14 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {db} from './config/firebase';
+import {collection, getDocs} from 'firebase/firestore';
 
 export default function App() {
+
+  const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState<string | null>(null);
+
   return (
     <View style={styles.container}>
       <Text>Open up App.tsx to start working on your app!</Text>
