@@ -9,6 +9,8 @@ import LoginScreen from './views/LoginScreen';
 import RegisterScreen from './views/RegisterScreen';
 import HomeScreen from './views/HomeScreen';
 import AnimeFormScreen from './views/AnimeFormScreen';
+import EstudioListScreen from './views/EstudioListScreen';
+import EstudioFormScreen from './views/EstudioFormScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -47,6 +49,18 @@ export default function App() {
             options={{ title: 'Novo Anime' }}
           />
 
+          <Stack.Screen 
+            name="EstudioList" 
+            component={EstudioListScreen} 
+            options={{ title: 'Meus Estúdios' }}
+          />
+          
+          <Stack.Screen 
+            name="EstudioForm" 
+            component={EstudioFormScreen} 
+            options={{ title: 'Novo Estúdio' }}
+          />
+  
         </Stack.Navigator>
       </NavigationContainer>
       <Toast />

@@ -1,14 +1,14 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native';
-import { AnimeController } from '../controllers/AnimeController';
-import { Anime } from '../models/Anime';
+import { EstudioController } from '../controllers/EstudioController';
+import { Estudio } from '../models/Estudio';
 import { auth } from '../config/firebase';
 import { styles } from '../styles/style';
 import { useFocusEffect } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
 
-export default function HomeScreen({ navigation }: any) {
-  const [animes, setAnimes] = useState<Anime[]>([]);
+export default function EstudioListScreen({ navigation }: any) {
+  const [estudios, setEstudios] = useState<Estudio[]>([]);
 
   const carregar = async () => {
     if (!auth.currentUser) {
@@ -21,8 +21,8 @@ export default function HomeScreen({ navigation }: any) {
       return;
     }
 
-    const lista = await AnimeController.listarAnimesPorUsuario(auth.currentUser.uid);
-    setAnimes(lista);
+    const lista = await EstudioController.listarEstudiosPorUsuario(auth.currentUser.uid);
+    setEstudios(lista);
   };
 
   useFocusEffect(
@@ -31,23 +31,23 @@ export default function HomeScreen({ navigation }: any) {
     }, [])
   );
 
-  const handleExcluir = (anime: Anime) => {
+  const handleExcluir = (estudio: Estudio) => {
     Alert.alert(
-      'Excluir Anime',
-      `Tem certeza que deseja excluir "${anime.titulo}"?`,
+      'Excluir Estúdio',
+      `Tem certeza que deseja excluir "${estudio.nome}"?`,
       [
         { text: 'Cancelar', style: 'cancel' },
         {
           text: 'Excluir',
           style: 'destructive',
           onPress: async () => {
-            if (!anime.id) return;
-            const sucesso = await AnimeController.excluirAnime(anime.id);
+            if (!estudio.id) return;
+            const sucesso = await EstudioController.excluirEstudio(estudio.id);
             if (sucesso) {
-              Toast.show({ type: 'success', text1: 'Anime excluído com sucesso!' });
+              Toast.show({ type: 'success', text1: 'Estúdio excluído com sucesso!' });
               carregar();
             } else {
-              Toast.show({ type: 'error', text1: 'Erro ao excluir anime.' });
+              Toast.show({ type: 'error', text1: 'Erro ao excluir estúdio.' });
             }
           },
         },
@@ -57,25 +57,26 @@ export default function HomeScreen({ navigation }: any) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>📺 Meus Animes</Text>
+      <Text style={styles.title}>🎬 Meus Estúdios</Text>
 
-      {animes.length === 0 ? (
-        <Text style={styles.text}>Você ainda não adicionou nenhum anime.</Text>
+      {estudios.length === 0 ? (
+        <Text style={styles.text}>Você ainda não cadastrou nenhum estúdio.</Text>
       ) : (
         <FlatList
-          data={animes}
-          keyExtractor={(item) => item.id || item.titulo}
+          data={estudios}
+          keyExtractor={(item) => item.id || item.nome}
+          contentContainerStyle={{ paddingBottom: 100 }}
           renderItem={({ item }) => (
             <View style={styles.card}>
-              <Text style={styles.nome}>{item.titulo}</Text>
+              <Text style={styles.nome}>{item.nome}</Text>
               <Text style={styles.info}>
-                {item.genero} • {item.status} • {item.anoLancamento}
+                {item.pais} • Fundado em {item.anoFundacao}
               </Text>
 
               <View style={{ flexDirection: 'row', marginTop: 10 }}>
                 <TouchableOpacity
                   style={[styles.button, { flex: 1, marginRight: 5, padding: 8 }]}
-                  onPress={() => navigation.navigate('AnimeForm', { anime: item })}
+                  onPress={() => navigation.navigate('EstudioForm', { estudio: item })}
                 >
                   <Text style={styles.buttonText}>Editar</Text>
                 </TouchableOpacity>
@@ -95,27 +96,9 @@ export default function HomeScreen({ navigation }: any) {
         />
       )}
 
-      {/*Botão para acessar os Estúdios */}
-      <TouchableOpacity
-        style={[
-          styles.button,
-          {
-            position: 'absolute',
-            bottom: 100,
-            right: 30,
-            width: 120,
-            borderRadius: 50,
-          },
-        ]}
-        onPress={() => navigation.navigate('EstudioList')}
-      >
-        <Text style={styles.buttonText}>🎬 Estúdios</Text>
-      </TouchableOpacity>
-
-      {/*Botão flutuante para novo anime */}
       <TouchableOpacity
         style={styles.addButton}
-        onPress={() => navigation.navigate('AnimeForm')}
+        onPress={() => navigation.navigate('EstudioForm')}
       >
         <Text style={styles.addText}>+</Text>
       </TouchableOpacity>

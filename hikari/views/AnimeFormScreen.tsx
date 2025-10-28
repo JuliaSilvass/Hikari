@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import Toast from 'react-native-toast-message';
 import { styles } from '../styles/style';
 import { Anime } from '../models/Anime';
 import { AnimeController } from '../controllers/AnimeController';
+import { EstudioController } from '../controllers/EstudioController';
+import { Estudio } from '../models/Estudio';
 import { auth } from '../config/firebase';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
@@ -19,14 +22,25 @@ export default function AnimeFormScreen({ navigation, route }: Props) {
   );
   const [status, setStatus] = useState(animeEdicao?.status || '');
   const [estudioId, setEstudioId] = useState(animeEdicao?.estudioId || '');
+  const [estudios, setEstudios] = useState<Estudio[]>([]);
   const [loading, setLoading] = useState(false);
 
+  // 🔹 Carrega todos os estúdios do usuário logado
+  useEffect(() => {
+    const carregarEstudios = async () => {
+      if (!auth.currentUser) return;
+      const lista = await EstudioController.listarEstudiosPorUsuario(auth.currentUser.uid);
+      setEstudios(lista);
+    };
+    carregarEstudios();
+  }, []);
+
   const handleSalvar = async () => {
-    if (!titulo || !genero || !anoLancamento) {
+    if (!titulo || !genero || !anoLancamento || !estudioId) {
       Toast.show({
         type: 'error',
         text1: 'Campos obrigatórios',
-        text2: 'Preencha título, gênero e ano.',
+        text2: 'Preencha título, gênero, ano e selecione um estúdio.',
       });
       return;
     }
@@ -94,7 +108,7 @@ export default function AnimeFormScreen({ navigation, route }: Props) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>
-        {animeEdicao ? 'Editar Anime ✏️' : 'Novo Anime 🌸'}
+        {animeEdicao ? 'Editar Anime' : 'Novo Anime'}
       </Text>
 
       <TextInput
@@ -130,13 +144,19 @@ export default function AnimeFormScreen({ navigation, route }: Props) {
         onChangeText={setStatus}
       />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Estúdio"
-        placeholderTextColor="#999"
-        value={estudioId}
-        onChangeText={setEstudioId}
-      />
+      {/* 🔹 Picker para selecionar o estúdio */}
+      <View style={styles.input}>
+        <Picker
+          selectedValue={estudioId}
+          onValueChange={(itemValue) => setEstudioId(itemValue)}
+          style={{ color: '#333' }}
+        >
+          <Picker.Item label="Selecione um estúdio" value="" />
+          {estudios.map((e) => (
+            <Picker.Item key={e.id} label={e.nome} value={e.id} />
+          ))}
+        </Picker>
+      </View>
 
       <TouchableOpacity
         style={styles.button}
