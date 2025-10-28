@@ -1,8 +1,41 @@
-export interface Personagem {
-  id?: string;
-  nome: string;
-  papel: 'Protagonista' | 'Vilão' | 'Secundário';
-  idade?: number;
-  animeId: string; 
-  userId: string;
+export class Personagem {
+  public id: string;
+  public nome: string;
+  public papel: string;
+  public idade: number;
+  public animeId: string;
+  public userId: string;
+
+  constructor(obj?: Partial<Personagem>) {
+    if (obj) {
+      this.id = obj.id || '';
+      this.nome = obj.nome || '';
+      this.papel = obj.papel || '';
+      this.idade = obj.idade || 0;
+      this.animeId = obj.animeId || '';
+      this.userId = obj.userId || '';
+    }
+  }
+
+  toString() {
+    return JSON.stringify({
+      id: this.id,
+      nome: this.nome,
+      papel: this.papel,
+      idade: this.idade,
+      animeId: this.animeId,
+      userId: this.userId,
+    });
+  }
+
+  toFirestore() {
+    return {
+      id: this.id,
+      nome: this.nome,
+      papel: this.papel,
+      idade: this.idade,
+      animeId: this.animeId,
+      userId: this.userId,
+    };
+  }
 }

@@ -1,27 +1,55 @@
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Toast from 'react-native-toast-message';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-import React, {useEffect, useState} from 'react';
-import {db} from './config/firebase';
-import {collection, getDocs} from 'firebase/firestore';
+
+// Telas
+import LoginScreen from './views/LoginScreen';
+import RegisterScreen from './views/RegisterScreen';
+import HomeScreen from './views/HomeScreen';
+import AnimeFormScreen from './views/AnimeFormScreen';
+
+const Stack = createNativeStackNavigator();
 
 export default function App() {
-
-  const [loading, setLoading] = useState(true);
-  const [users, setUsers] = useState<string | null>(null);
-
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <>
+      <NavigationContainer>
+        <StatusBar style="auto" />
+        <Stack.Navigator
+          initialRouteName="Login"
+          screenOptions={{
+            headerStyle: { backgroundColor: '#ec407a' },
+            headerTintColor: '#fff',
+            headerTitleStyle: { fontWeight: 'bold' },
+          }}
+        >
+          <Stack.Screen
+            name="Login"
+            component={LoginScreen}
+            options={{ title: 'Hikari 🌸' }}
+          />
+          <Stack.Screen
+            name="Register"
+            component={RegisterScreen}
+            options={{ title: 'Criar Conta' }}
+          />
+          <Stack.Screen
+            name="Home"
+            component={HomeScreen}
+            options={{ title: 'Meus Animes' }}
+          />
+
+          <Stack.Screen
+            name="AnimeForm"
+            component={AnimeFormScreen}
+            options={{ title: 'Novo Anime' }}
+          />
+
+        </Stack.Navigator>
+      </NavigationContainer>
+      <Toast />
+    </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
