@@ -7,30 +7,31 @@ export class Personagem {
   public userId: string;
 
   constructor(obj?: Partial<Personagem>) {
-    if (obj) {
-      this.id = obj.id || '';
-      this.nome = obj.nome || '';
-      this.papel = obj.papel || '';
-      this.idade = obj.idade || 0;
-      this.animeId = obj.animeId || '';
-      this.userId = obj.userId || '';
-    }
+    this.id = obj?.id || '';
+    this.nome = obj?.nome || '';
+    this.papel = obj?.papel || '';
+    this.idade = obj?.idade ?? 0;
+    this.animeId = obj?.animeId || '';
+    this.userId = obj?.userId || '';
   }
 
-  toString() {
-    return JSON.stringify({
-      id: this.id,
-      nome: this.nome,
-      papel: this.papel,
-      idade: this.idade,
-      animeId: this.animeId,
-      userId: this.userId,
-    });
+  toString(): string {
+    return JSON.stringify(
+      {
+        id: this.id,
+        nome: this.nome,
+        papel: this.papel,
+        idade: this.idade,
+        animeId: this.animeId,
+        userId: this.userId,
+      },
+      null,
+      2
+    );
   }
 
   toFirestore() {
     return {
-      id: this.id,
       nome: this.nome,
       papel: this.papel,
       idade: this.idade,

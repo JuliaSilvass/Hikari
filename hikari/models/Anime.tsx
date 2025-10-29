@@ -18,7 +18,6 @@ export class Anime {
   }
 
   toFirestore() {
-    // O Firestore já gera o ID — não incluir aqui
     return {
       titulo: this.titulo,
       genero: this.genero,

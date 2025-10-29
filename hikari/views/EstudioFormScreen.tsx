@@ -88,7 +88,7 @@ export default function EstudioFormScreen({ navigation, route }: Props) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>
-        {estudioEdicao ? 'Editar Estúdio ✏️' : 'Novo Estúdio 🌸'}
+        {estudioEdicao ? 'Editar Estúdio' : 'Novo Estúdio'}
       </Text>
 
       <TextInput

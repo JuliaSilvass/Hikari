@@ -1,28 +1,27 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native';
-import { EstudioController } from '../controllers/EstudioController';
-import { Estudio } from '../models/Estudio';
-import { auth } from '../config/firebase';
-import { styles } from '../styles/style';
 import { useFocusEffect } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
+import { styles } from '../styles/style';
+import { PersonagemController } from '../controllers/PersonagemController';
+import { Personagem } from '../models/Personagem';
 
-export default function EstudioListScreen({ navigation }: any) {
-  const [estudios, setEstudios] = useState<Estudio[]>([]);
+export default function PersonagemListScreen({ navigation, route }: any) {
+  const animeId = route.params?.animeId;
+  const animeTitulo = route.params?.animeTitulo || 'Anime';
+  const [personagens, setPersonagens] = useState<Personagem[]>([]);
 
   const carregar = async () => {
-    if (!auth.currentUser) {
+    try {
+      const lista = await PersonagemController.listarPorAnime(animeId);
+      setPersonagens(lista);
+    } catch (error) {
       Toast.show({
         type: 'error',
-        text1: 'Sessão expirada',
-        text2: 'Faça login novamente.',
+        text1: 'Erro ao carregar personagens',
+        text2: 'Tente novamente mais tarde.',
       });
-      navigation.replace('Login');
-      return;
     }
-
-    const lista = await EstudioController.listarEstudiosPorUsuario(auth.currentUser.uid);
-    setEstudios(lista);
   };
 
   useFocusEffect(
@@ -31,23 +30,22 @@ export default function EstudioListScreen({ navigation }: any) {
     }, [])
   );
 
-  const handleExcluir = (estudio: Estudio) => {
+  const handleExcluir = (personagem: Personagem) => {
     Alert.alert(
-      'Excluir Estúdio',
-      `Tem certeza que deseja excluir "${estudio.nome}"?`,
+      'Excluir Personagem',
+      `Deseja excluir "${personagem.nome}"?`,
       [
         { text: 'Cancelar', style: 'cancel' },
         {
           text: 'Excluir',
           style: 'destructive',
           onPress: async () => {
-            if (!estudio.id) return;
-            const sucesso = await EstudioController.excluirEstudio(estudio.id);
+            const sucesso = await PersonagemController.excluirPersonagem(personagem.id);
             if (sucesso) {
-              Toast.show({ type: 'success', text1: 'Estúdio excluído com sucesso!' });
+              Toast.show({ type: 'success', text1: 'Personagem excluído com sucesso!' });
               carregar();
             } else {
-              Toast.show({ type: 'error', text1: 'Erro ao excluir estúdio.' });
+              Toast.show({ type: 'error', text1: 'Erro ao excluir personagem.' });
             }
           },
         },
@@ -57,26 +55,27 @@ export default function EstudioListScreen({ navigation }: any) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Meus Estúdios</Text>
+      <Text style={styles.title}>Personagens de {animeTitulo}</Text>
 
-      {estudios.length === 0 ? (
-        <Text style={styles.text}>Você ainda não cadastrou nenhum estúdio.</Text>
+      {personagens.length === 0 ? (
+        <Text style={styles.text}>Nenhum personagem cadastrado ainda.</Text>
       ) : (
         <FlatList
-          data={estudios}
+          data={personagens}
           keyExtractor={(item) => item.id || item.nome}
-          contentContainerStyle={{ paddingBottom: 100 }}
           renderItem={({ item }) => (
             <View style={styles.card}>
               <Text style={styles.nome}>{item.nome}</Text>
               <Text style={styles.info}>
-                {item.pais} • Fundado em {item.anoFundacao}
+                {item.papel} • {item.idade} anos
               </Text>
 
               <View style={{ flexDirection: 'row', marginTop: 10 }}>
                 <TouchableOpacity
                   style={[styles.button, { flex: 1, marginRight: 5, padding: 8 }]}
-                  onPress={() => navigation.navigate('EstudioForm', { estudio: item })}
+                  onPress={() =>
+                    navigation.navigate('PersonagemForm', { personagem: item, animeId })
+                  }
                 >
                   <Text style={styles.buttonText}>Editar</Text>
                 </TouchableOpacity>
@@ -96,9 +95,10 @@ export default function EstudioListScreen({ navigation }: any) {
         />
       )}
 
+      {/* Botão flutuante para novo personagem */}
       <TouchableOpacity
         style={styles.addButton}
-        onPress={() => navigation.navigate('EstudioForm')}
+        onPress={() => navigation.navigate('PersonagemForm', { animeId })}
       >
         <Text style={styles.addText}>+</Text>
       </TouchableOpacity>
